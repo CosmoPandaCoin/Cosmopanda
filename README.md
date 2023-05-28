@@ -1,4 +1,5 @@
 # Cosmopanda
 CosmoPanda Coin
 
-![image](https://github.com/CosmoPandaCoin/Cosmopanda/assets/134861289/04a2f14f-3965-4318-a0c6-57f9192697ef)
+![image](https://github.com/CosmoPandaCoin/Cosmopanda/assets/134861289/a6932843-1d6a-44f3-ba7b-2b7c05e78f2f)
+
