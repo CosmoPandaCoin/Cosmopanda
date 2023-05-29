@@ -36,8 +36,9 @@ contract CosmoPanda is ERC20, ERC20Burnable, Ownable {
         return _maxBuyLimit;
     }
     
-    function setMaxBuyLimit(uint256 newLimit) public onlyOwner {
-        _maxBuyLimit = newLimit;
+   function setMaxBuyLimit(uint256 percentage) public onlyOwner {  // Set  maximum buy limit in %
+         uint256 totalSupply = totalSupply();
+        _maxBuyLimit = (totalSupply * percentage) / 100;
     }
 
     function _beforeTokenTransfer(
