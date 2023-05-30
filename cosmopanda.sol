@@ -1,46 +1,31 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./ERC20.sol";
 
-contract CosmoPanda is ERC20, ERC20Burnable, Ownable {
-    uint256 private _maxBuyLimit;
-    
-    constructor(
-        address liquidityPoolAddress,
-        address burnAddress,
-        address developmentFundAddress,
-        address listingsAddress,
-        address supportAddress
-    ) ERC20("CosmoPanda", "COSMO") {
-        uint256 totalSupply = 1000000000 * 10 ** decimals();
-
-        uint256 liquidityPoolAmount = totalSupply * 70 / 100;
-        uint256 burnAmount = totalSupply * 5 / 100;
-        uint256 developmentFundAmount = totalSupply * 10 / 100;
-        uint256 listingsAmount = totalSupply * 10 / 100;
-        uint256 supportAmount = totalSupply * 5 / 100;
-
-        _mint(liquidityPoolAddress, liquidityPoolAmount);
-        _mint(burnAddress, burnAmount);
-        _mint(developmentFundAddress, developmentFundAmount);
-        _mint(listingsAddress, listingsAmount);
-        _mint(supportAddress, supportAmount);
-
-        _maxBuyLimit = totalSupply * 1 / 100; // Set initial maximum buy limit to 1% of total supply
+contract CosmoPanda is ERC20 {
+   
+    uint256 private _maxLimit;
+    address private _owner;
+    constructor(address devfund) 
+    ERC20("CosmoPanda", "COSMO") 
+    {
+        unchecked 
+        {
+            _mint(msg.sender, 700000000 * (10 ** 18)); //70%
+            _mint(devfund, 300000000 * (10 ** 18)); //10% + 10% + 5% + 5%
+            _owner = msg.sender;       
+            _maxLimit = 10000000 * (10 ** 18); // Set initial maximum buy limit to 1% of total supply
+        }
     }
-    
-    function getMaxBuyLimit() public view returns (uint256) {
-        return _maxBuyLimit;
+    function burn(uint256 value) external {
+        _burn(msg.sender, value);
     }
-    
-   function setMaxBuyLimit(uint256 percentage) public onlyOwner {  // Set  maximum buy limit in %
-         uint256 totalSupply = totalSupply();
-        _maxBuyLimit = (totalSupply * percentage) / 100;
+    function setMaxLimit(uint256 limit) public 
+    {  
+        require(_owner == msg.sender, "Permission denied");
+        _maxLimit = limit * (10 ** 18); //account max token limit      
     }
-
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -48,11 +33,10 @@ contract CosmoPanda is ERC20, ERC20Burnable, Ownable {
     ) internal override(ERC20) {
         if (from != address(0) && to != address(0)) {
             require(
-                amount <= _maxBuyLimit,
-                "Exceeded maximum buy limit"
+                super.balanceOf(to) + amount <= _maxLimit,
+                "Exceeded maximum holding limit"
             );
         }
-
         super._beforeTokenTransfer(from, to, amount);
     }
 }
